@@ -36,6 +36,7 @@ app.use("/teams", teamRoutes);
 
 /* SERVER */
 const port = Number(process.env.PORT) || 3000;
+// Port 0.0.0.0 value added for EC2
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on part ${port}`);
 });
