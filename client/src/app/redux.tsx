@@ -18,7 +18,6 @@ const rootReducer = combineReducers({
 /* REDUX STORE */
 export const store = configureStore({
   reducer: rootReducer,
-  // @ts-expect-error: find a way to prevent middleware from having a type error
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
 });
