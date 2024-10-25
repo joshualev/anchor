@@ -9,10 +9,10 @@ import Timeline from '../TimelineView';
 import Table from '../TableView';
 
 type Props = {
-    id: string;
+    id: string;  // Just accept the id directly
 }
 
-const ProjectClient = ({ id }: Props) => {
+const Project = ({ id }: Props) => {
     const [activeTab, setActiveTab] = useState("Board");
     const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
 
@@ -38,6 +38,6 @@ const ProjectClient = ({ id }: Props) => {
             )}
         </div>
     );
-}
+};
 
-export default ProjectClient;
+export default Project;

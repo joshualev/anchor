@@ -1,9 +1,10 @@
-import ProjectClient from './ProjectClient';
+import Project from './Project';
 
-type Props = {
-    params: { id: string }
-}
-
-export default function ProjectPage({ params }: Props) {
-    return <ProjectClient id={params.id} />;
+export default async function ProjectPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const resolvedParams = await params;
+    return <Project id={resolvedParams.id} />;
 }
