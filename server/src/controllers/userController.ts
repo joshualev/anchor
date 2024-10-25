@@ -17,6 +17,31 @@ export const getUsers = async (
     }
 }
 
+/**
+ * Retrieves a single user from the database using their Cognito ID
+ * 
+ * @description
+ * This endpoint connects AWS Cognito authentication with our application's user data.
+ * It takes a Cognito ID from the request parameters and queries the database
+ * to find the corresponding user profile.
+ */
+export const getUser = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    const { cognitoId } = req.params;
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                cognitoId: cognitoId
+            }
+        });
+        res.json(user);
+    } catch (error: any) {
+        res.status(500).json({ message: `Error retrieving user: ${error.message}`});
+    }
+}
+
 
 // Create user profile and insert into our database
 export const postUser = async (

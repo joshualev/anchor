@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 
 export interface Project {
     id: number;
@@ -75,11 +76,43 @@ export interface SearchResults {
 
 export const api = createApi({
     baseQuery: fetchBaseQuery({ 
-        baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL
+        baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+        prepareHeaders: async (headers) => {
+            const session = await fetchAuthSession(); // grab the session
+            const { accessToken } = session.tokens ?? {}; // grab the access token
+            if ( accessToken) {
+                // Set headers for all api calls inside of the endpoints. 
+                // Authorization header must be set up in api gateway authorizers.
+                // we now have access to our api gateway.
+                headers.set("Authorization", `Bearer ${accessToken}`);
+            }
+            return headers;
+        }
     }),
     reducerPath: "api",
     tagTypes: ["Projects", "Tasks", "Users", "Teams"],
     endpoints: ( build ) => ({
+        getAuthUser: build.query({
+            queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
+                try {
+                    const user = await getCurrentUser();                // fetch user information from cognito
+                    const session = await fetchAuthSession();           // provides more information we need
+                    if (!session) throw new Error("No session found");
+                    const { userSub } = session;                        // the cognito id
+                    const { accessToken } = session.tokens ?? {};
+
+                    // sequentially grab information from our database with our local endpoint to get user we want
+                    // relies on cognito id to get user information, so we need to have this to be a sequential api call.
+                    const userDetailsResponse = await fetchWithBQ(`users/${userSub}`);
+                    const userDetails = userDetailsResponse.data as User
+
+                    // information we want to use for our frontend.
+                    return { data: { user, userSub, userDetails } }
+                } catch (error: any) {
+                    return { error: error.message || "Could not fetch user data" };
+                }
+            }
+        }),
         getProjects: build.query<Project[], void>({
             query: () => "projects",
             providesTags: ["Projects"],
@@ -141,6 +174,7 @@ export const api = createApi({
 });
 
 export const {
+    useGetAuthUserQuery,
     useGetProjectsQuery,
     useCreateProjectMutation,
     useGetTasksQuery,
