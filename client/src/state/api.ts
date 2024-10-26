@@ -96,17 +96,34 @@ export const api = createApi({
           const session = await fetchAuthSession();
           if (!session) throw new Error("No session found");
 
-          console.log('session exists', session);
           const { userSub } = session;
-          const { accessToken } = session.tokens ?? {};
+          const email = session.tokens?.idToken?.payload?.email;
+          
+          if (!email) {
+            throw new Error("No email found in session");
+          }
 
-
+          // Try to get existing user details
           const userDetailsResponse = await fetchWithBQ(`users/${userSub}`);
-          const userDetails = userDetailsResponse.data as User;
+          let userDetails = userDetailsResponse.data as User;
 
-          console.log('user!', user)
-          console.log('user SUB!', userSub)
-          console.log('user Details..!', userDetails)
+          // If user doesn't exist in our database yet, create them
+          if (!userDetails) {
+            const newUser = {
+              cognitoId: userSub,
+              username: user.username,
+              email: email,
+            };
+
+            // Create user in your database
+            const createUserResponse = await fetchWithBQ({
+              url: 'users',
+              method: 'POST',
+              body: newUser,
+            });
+            
+            userDetails = createUserResponse.data as User;
+          }
 
           return { data: { user, userSub, userDetails } };
         } catch (error: any) {

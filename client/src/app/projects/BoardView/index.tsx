@@ -223,7 +223,7 @@ const Task = ({ task }: TaskProps) => {
                             {/* Task assignee */}
                             {task.assignee && (
                                 <Image 
-                                key={task.assignee.userId}
+                                key={`task-${task.id}-assignee-${task.assignee.userId}`}
                                 src={`https://anchor-s3-images.s3.ap-southeast-2.amazonaws.com/${task.assignee.profilePictureUrl!}`} 
                                 alt={task.assignee.username} 
                                 width={30}
@@ -234,7 +234,7 @@ const Task = ({ task }: TaskProps) => {
                             {/* Author */}
                             {task.author && (
                                 <Image 
-                                key={task.author.userId}
+                                key={`task-${task.id}-author-${task.author.userId}`}
                                 src={`https://anchor-s3-images.s3.ap-southeast-2.amazonaws.com/${task.author.profilePictureUrl!}`} 
                                 alt={task.author.username} 
                                 width={30}
