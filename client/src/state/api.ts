@@ -78,10 +78,16 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
-      const session = await fetchAuthSession();
-      const { accessToken } = session.tokens ?? {};
-      if (accessToken) {
-        headers.set("Authorization", `Bearer ${accessToken}`);
+      try {
+        const session = await fetchAuthSession();
+        const { accessToken } = session.tokens ?? {};
+        if (accessToken) {
+          headers.set("Authorization", `Bearer ${accessToken}`);
+        } else {
+          console.warn("No access token found in session");
+        }
+      } catch (error) {
+        console.error("Error preparing headers:", error);
       }
       return headers;
     },
@@ -90,7 +96,7 @@ export const api = createApi({
   tagTypes: ["Projects", "Tasks", "Users", "Teams"],
   endpoints: (build) => ({
     getAuthUser: build.query({
-      queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
+      queryFn: async (_, _queryApi, _extraOptions, baseQuery) => {
         try {
           const user = await getCurrentUser();
           const session = await fetchAuthSession();
@@ -104,7 +110,7 @@ export const api = createApi({
           }
 
           // Try to get existing user details
-          const userDetailsResponse = await fetchWithBQ(`users/${userSub}`);
+          const userDetailsResponse = await baseQuery(`users/${userSub}`);
           let userDetails = userDetailsResponse.data as User;
 
           // If user doesn't exist in our database yet, create them
@@ -116,7 +122,7 @@ export const api = createApi({
             };
 
             // Create user in your database
-            const createUserResponse = await fetchWithBQ({
+            const createUserResponse = await baseQuery({
               url: 'users',
               method: 'POST',
               body: newUser,
