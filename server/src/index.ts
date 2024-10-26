@@ -4,13 +4,12 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-
 /* ROUTE IMPORTS */
 import projectRoutes from "./routes/projectRoutes";
 import taskRoutes from "./routes/taskRoutes";
-import searchRoutes from './routes/searchRoutes';
-import userRoutes from './routes/userRoutes';
-import teamRoutes from './routes/teamRoutes';
+import searchRoutes from "./routes/searchRoutes";
+import userRoutes from "./routes/userRoutes";
+import teamRoutes from "./routes/teamRoutes";
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -34,10 +33,8 @@ app.use("/search", searchRoutes);
 app.use("/users", userRoutes);
 app.use("/teams", teamRoutes);
 
-
 /* SERVER */
 const port = Number(process.env.PORT) || 3000;
-// Port 0.0.0.0 value added for EC2
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on part ${port}`);
 });
