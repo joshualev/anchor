@@ -76,10 +76,7 @@ export interface Team {
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: (() => {
-      console.log('API Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
-      return process.env.NEXT_PUBLIC_API_BASE_URL;
-    })(),
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
       try {
         const session = await fetchAuthSession();
