@@ -32,6 +32,8 @@ yarn-error.log*
 
 # OS files
 .DS_Store
+client/.DS_Store
+server/.DS_Store
 *.pem
 
 # IDE/Editor folders
@@ -46,5 +48,4 @@ coverage/
 # Misc
 *.log
 .vercel
-.env.local.DS_Store
-.DS_Store
+.env.local
