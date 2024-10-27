@@ -103,11 +103,7 @@ export const api = createApi({
           if (!session) throw new Error("No session found");
 
           const { userSub } = session;
-          const email = session.tokens?.idToken?.payload?.email;
-          
-          if (!email) {
-            throw new Error("No email found in session");
-          }
+
 
           // Try to get existing user details
           const userDetailsResponse = await baseQuery(`users/${userSub}`);
@@ -115,6 +111,13 @@ export const api = createApi({
 
           // If user doesn't exist in our database yet, create them
           if (!userDetails) {
+
+            const email = session.tokens?.idToken?.payload?.email;
+          
+            if (!email) {
+              throw new Error("No email found in session");
+            }
+            
             const newUser = {
               cognitoId: userSub,
               username: user.username,
