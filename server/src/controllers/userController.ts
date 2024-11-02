@@ -32,8 +32,6 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
  * @param req.params.cognitoId - The Cognito user ID from AWS Cognito user pool
  * @returns User object if found, null if not found
  * 
- * @security This endpoint should be protected with authentication middleware
- * @throws 500 if database operation fails
  */
 export const getUser = async (req: Request, res: Response): Promise<void> => {
   const { cognitoId } = req.params;
@@ -60,8 +58,7 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
  * This endpoint is designed to work with AWS Cognito Post-Confirmation Lambda trigger.
  * When a user completes signup/confirmation in Cognito, a Lambda function should call
  * this endpoint to create the corresponding user record in the application database.
- * 
- * Example Lambda trigger:
+ *  * Example Lambda trigger:
  * ```javascript
  * exports.handler = async (event) => {
  *     const cognitoId = event.request.userAttributes.sub;
@@ -81,7 +78,6 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
  * @returns Created user object with success message
  * 
  * @security This endpoint should be protected and only callable by trusted services
- * @throws 500 if database operation fails
  */
 export const postUser = async (req: Request, res: Response) => {
   try {
