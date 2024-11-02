@@ -78,16 +78,10 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
-      try {
-        const session = await fetchAuthSession();
-        const { accessToken } = session.tokens ?? {};
-        if (accessToken) {
-          headers.set("Authorization", `Bearer ${accessToken}`);
-        } else {
-          console.warn("No access token found in session");
-        }
-      } catch (error) {
-        console.error("Error preparing headers:", error);
+      const session = await fetchAuthSession();
+      const { accessToken } = session.tokens ?? {};
+      if (accessToken) {
+        headers.set("Authorization", `Bearer ${accessToken}`);
       }
       return headers;
     },
@@ -96,43 +90,16 @@ export const api = createApi({
   tagTypes: ["Projects", "Tasks", "Users", "Teams"],
   endpoints: (build) => ({
     getAuthUser: build.query({
-      queryFn: async (_, _queryApi, _extraOptions, baseQuery) => {
+      queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
         try {
           const user = await getCurrentUser();
           const session = await fetchAuthSession();
           if (!session) throw new Error("No session found");
-
           const { userSub } = session;
+          const { accessToken } = session.tokens ?? {};
 
-
-          // Try to get existing user details
-          const userDetailsResponse = await baseQuery(`users/${userSub}`);
-          let userDetails = userDetailsResponse.data as User;
-
-          // If user doesn't exist in our database yet, create them
-          if (!userDetails) {
-
-            const email = session.tokens?.idToken?.payload?.email;
-          
-            if (!email) {
-              throw new Error("No email found in session");
-            }
-            
-            const newUser = {
-              cognitoId: userSub,
-              username: user.username,
-              email: email,
-            };
-
-            // Create user in your database
-            const createUserResponse = await baseQuery({
-              url: 'users',
-              method: 'POST',
-              body: newUser,
-            });
-            
-            userDetails = createUserResponse.data as User;
-          }
+          const userDetailsResponse = await fetchWithBQ(`users/${userSub}`);
+          const userDetails = userDetailsResponse.data as User;
 
           return { data: { user, userSub, userDetails } };
         } catch (error: any) {
@@ -199,6 +166,7 @@ export const api = createApi({
 });
 
 export const {
+  useGetAuthUserQuery,
   useGetProjectsQuery,
   useCreateProjectMutation,
   useGetTasksQuery,
@@ -208,5 +176,4 @@ export const {
   useGetUsersQuery,
   useGetTeamsQuery,
   useGetTasksByUserQuery,
-  useGetAuthUserQuery,
 } = api;
